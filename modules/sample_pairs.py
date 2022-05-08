@@ -32,7 +32,7 @@ def spa_test(img):
         average = average / 3.0
         average = abs(average)
     else:
-        grey = img_split
+        grey = img_split[0]
         average = analyze(grey.load(), height, width)
         average = abs(average)
 

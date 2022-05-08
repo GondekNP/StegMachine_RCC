@@ -14,9 +14,8 @@ def rs_test(img, bw=2, bh=2, mask=[1, 0, 0, 1]):
     else:
         # very hacky but this is an edge case in our situation and we avoid having
         # to refactor the below for one layer this way
-        r = img_split
-        g = img_split
-        b = img_split
+        r = g = b = img_split[0]
+
     r = r.load()
     g = g.load()
     b = b.load() 
