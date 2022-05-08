@@ -12,11 +12,10 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 import os
 import logging
-from methods.chi_square import chi_squared_test
-from methods.sample_pairs import spa_test
-from methods.rs import rs_test
+from .chi_square import chi_squared_test
+from .sample_pairs import spa_test
+from .rs import rs_test
 import numpy as np
-
 
 class Analyzer:
     """Class containing all the necessary functions for stegoanalysis"""
@@ -31,7 +30,7 @@ class Analyzer:
             logging.error("Please, generate test sample or rename it to 'Tests'!❗️")
         else:
             os.chdir('..')
-            logging.info("Everything is fine with the test folder.✅")
+            logging.info("Everything is fine with the test folder.")
 
     def exif(self, img):
         """Prints exif data
@@ -60,7 +59,7 @@ class Analyzer:
         :param bitnum: How many LSBs need to take
 
         """
-        logging.info('Visualising lsb for '+ img.filename +' ...🌀')
+        logging.info('Visualising lsb for '+ img.filename +' ...')
         height, width = img.size
 
         if join == False:
@@ -82,7 +81,7 @@ class Analyzer:
                                 img_ch.putpixel((i, j), 0) # white
                 name = suffixes[k] + "-" + img.filename.split(".")[0] + ".bmp"
                 img_ch.save(name)
-                logging.info("Openning " + suffixes[k] + " component...🌀")
+                logging.info("Openning " + suffixes[k] + " component...")
                 img_ch.show()
         else:
             img_ch = Image.new("RGB", (height, width), color=(0, 0, 0))
@@ -100,7 +99,7 @@ class Analyzer:
 
                     img_ch.putpixel((i, j), tuple(new_pixel))
             img_ch.save("LSB-" + img.filename.split(".")[0] + ".bmp")
-            logging.info("Openning LSB image...🌀")
+            logging.info("Openning LSB image...")
             img_ch.show()
 
     def chi_squared_attack(self, img, eps=1e-5):
@@ -118,42 +117,46 @@ class Analyzer:
         :param eps: Error value for probability  (default is 1e-5)
         
         """
-        logging.info('Calculating chi_squared for '+ img.filename +' ...🌀')
+        logging.info('Calculating chi_squared for '+ img.filename +' ...')
         channels = img.split()
         width, height = img.size
 
-        img_to_blend = Image.new(img.mode, (width, height), color=(0, 0, 0)) # image with results 
-    
+        # img_to_blend = Image.new(img.mode, (width, height), color=(0, 0, 0)) # image with results 
+        chi_stats = []
         for i in range(height):
             prob = 0
             for ch in channels:
                 data = ch.crop((0, i, width, i+1)) # crop for new line 
                 prob += chi_squared_test(data)[1]
             prob /= 3
-            if 0.5 - eps < prob < 0.5 + eps: 
-                for j in range(width):
-                    img_to_blend.putpixel((j, i), (209, 167, 27)) # yellow
-            elif prob < 0.5 - eps:
-                for j in range(width):
-                    img_to_blend.putpixel((j, i), (112, 209, 27)) # green
-            elif prob > 0.5 + eps:
-                for j in range(width):
-                    img_to_blend.putpixel((j, i), (255, 0, 0)) # red
+            chi_stats.append(prob)
+            # if 0.5 - eps < prob < 0.5 + eps: 
+            #     for j in range(width):
+            #         img_to_blend.putpixel((j, i), (209, 167, 27)) # yellow
+            # elif prob < 0.5 - eps:
+            #     for j in range(width):
+            #         img_to_blend.putpixel((j, i), (112, 209, 27)) # green
+            # elif prob > 0.5 + eps:
+            #     for j in range(width):
+            #         img_to_blend.putpixel((j, i), (255, 0, 0)) # red
 
-        result = Image.blend(img, img_to_blend, 0.5)
-        result.save("chi-" + img.filename)
-        result.show()
+        # result = Image.blend(img, img_to_blend, 0.5)
+        # result.save("chi-" + img.filename)
+        # result.show()
+        return np.mean(chi_stats), np.std(chi_stats)
 
     def spa_attack(self, img):
-        logging.info("Calculating spa beta for " + img.filename +' ...🌀')
+        logging.info("Calculating spa beta for " + img.filename +' ...')
         estimate = spa_test(img)
         logging.info("SPA estimate for "+ img.filename + " is " + str(estimate))
+        return estimate
 
     def rs_attack(self, img):
-        logging.info("Calculating rs estimate for " + img.filename +' ...🌀')
+        logging.info("Calculating rs estimate for " + img.filename +' ...')
         logging.info("It will take a couple of minutes...")
         estimate = rs_test(img)
         logging.info("RS estimate for "+ img.filename + " is " + str(estimate))
+        return estimate
 
 if __name__ == "__main__":
     an = Analyzer()
