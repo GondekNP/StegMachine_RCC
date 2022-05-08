@@ -8,7 +8,15 @@ def rs_test(img, bw=2, bh=2, mask=[1, 0, 0, 1]):
 
     blocks_in_row = floor(width / bw)
     blocks_in_col = floor(height / bh)
-    r, g, b = img.split()[:3]
+    img_split = img.split()[:3]
+    if len(img_split) > 1:
+        r, g, b = img_split
+    else:
+        # very hacky but this is an edge case in our situation and we avoid having
+        # to refactor the below for one layer this way
+        r = img_split
+        g = img_split
+        b = img_split
     r = r.load()
     g = g.load()
     b = b.load() 
