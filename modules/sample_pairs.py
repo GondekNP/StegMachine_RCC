@@ -20,15 +20,22 @@ def spa_test(img):
 
 
     average = 0.0
+    img_split = img.split()[:3]
 
-    r, g, b = img.split()[:3]
+    if len(img_split) > 1:
+        r, g, b = img_split
 
-    average = analyze(r.load(), height, width)
-    average += analyze(g.load(), height, width, channel='g')
-    average += analyze(b.load(), height, width, channel='b')
+        average = analyze(r.load(), height, width)
+        average += analyze(g.load(), height, width, channel='g')
+        average += analyze(b.load(), height, width, channel='b')
 
-    average = average / 3.0
-    average = abs(average)
+        average = average / 3.0
+        average = abs(average)
+    else:
+        grey = img_split
+        average = analyze(grey.load(), height, width)
+        average = abs(average)
+
     if average > 1:
         return 1
     else:
