@@ -147,14 +147,24 @@ class Analyzer:
 
     def spa_attack(self, img):
         logging.info("Calculating spa beta for " + img.filename +' ...')
-        estimate = spa_test(img)
+
+        try:
+            estimate = spa_test(img)
+        except ZeroDivisionError:
+            estimate = np.nan
+
         logging.info("SPA estimate for "+ img.filename + " is " + str(estimate))
         return estimate
 
     def rs_attack(self, img):
         logging.info("Calculating rs estimate for " + img.filename +' ...')
         logging.info("It will take a couple of minutes...")
-        estimate = rs_test(img)
+
+        try:
+            estimate = rs_test(img)
+        except ZeroDivisionError:
+            estimate = np.nan
+
         logging.info("RS estimate for "+ img.filename + " is " + str(estimate))
         return estimate
 
